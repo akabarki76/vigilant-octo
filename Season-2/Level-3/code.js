@@ -15,6 +15,7 @@ const libxmljs = require("libxmljs");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const sanitizeFilename = require("sanitize-filename");
 const { exec } = require("node:child_process");
 const RateLimit = require("express-rate-limit");
 const app = express();
@@ -37,7 +38,8 @@ app.post("/ufo/upload", uploadLimiter, upload.single("file"), (req, res) => {
 
   console.log("Received uploaded file:", req.file.originalname);
 
-  const uploadedFilePath = path.join(__dirname, req.file.originalname);
+  const sanitizedFilename = sanitizeFilename(req.file.originalname);
+  const uploadedFilePath = path.join(__dirname, sanitizedFilename);
   fs.writeFileSync(uploadedFilePath, req.file.buffer);
 
   res.status(200).send("File uploaded successfully.");
