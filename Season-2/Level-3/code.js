@@ -77,10 +77,17 @@ app.post("/ufo", (req, res) => {
         xmlDoc.toString().includes('SYSTEM "') &&
         xmlDoc.toString().includes(".admin")
       ) {
+        const allowedCommands = ["ls", "pwd", "whoami"]; // Allowlist of permitted commands
         extractedContent.forEach((command) => {
+          if (!allowedCommands.includes(command)) {
+            console.error("Blocked unsafe command: ", command);
+            res.status(400).send("Invalid command.");
+            return;
+          }
           exec(command, (err, output) => {
             if (err) {
               console.error("could not execute command: ", err);
+              res.status(500).send("Command execution failed.");
               return;
             }
             console.log("Output: \n", output);
